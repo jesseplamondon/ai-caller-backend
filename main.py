@@ -8,6 +8,8 @@ from utils.twilio_utils import fetch_audio, stream_audio_to_twilio
 from utils.elevenlabs_utils import generate_speech
 from utils.openai_utils import transcribe_audio, generate_response, summarize_transcript
 from utils.db import save_lead_data
+from fastapi import UploadFile, File
+
 
 import os
 import uvicorn
@@ -61,15 +63,6 @@ async def handle_call(request: Request, background_tasks: BackgroundTasks):
     response = VoiceResponse()
     response.say("Thanks for calling. Please hold while we process your request.")
     return PlainTextResponse(str(response))
-
-
-@app.post("/upload-audio/")
-async def upload_audio(file: bytes = None, request: Request = None):
-    # Alternative: Using UploadFile
-    # For now using UploadFile:
-    from fastapi import UploadFile, File
-    # Re-define with UploadFile if needed
-    pass  # See below correct version
 
 @app.post("/upload-audio/")
 async def upload_audio(file: UploadFile = File(...)):
