@@ -4,7 +4,7 @@ export default function HelloBackend() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/hello')
+    fetch(`${process.env.REACT_APP_BACKEND_URL}/api/hello`)
       .then(res => res.json())
       .then(data => setMessage(data.message))
       .catch(err => console.error(err));
