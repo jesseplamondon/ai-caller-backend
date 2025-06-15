@@ -8,6 +8,9 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Use backend URL from .env file
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
   const handleTranscribe = async () => {
     if (!filename) {
       setError('Please enter a filename.');
@@ -20,7 +23,10 @@ function App() {
     setSummary('');
 
     try {
-      const response = await fetch(`http://localhost:8000/process-audio/?filename=${encodeURIComponent(filename)}`);
+      const response = await fetch(
+        `${backendUrl}/process-audio/?filename=${encodeURIComponent(filename)}`
+      );
+
       if (!response.ok) throw new Error(`Server error: ${response.statusText}`);
       const data = await response.json();
 

@@ -1,21 +1,37 @@
-# utils/twilio_utils.py
+import aiohttp
+import os
 
-from twilio.twiml.voice_response import VoiceResponse
+UPLOAD_DIR = "Saved_Audio"
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
 
-def fetch_audio():
+async def fetch_audio(recording_url: str) -> str:
     """
-    Placeholder function that simulates fetching or generating audio data.
-    In your real app, this could be an AI-generated response or prerecorded audio.
+    Downloads the audio file from Twilio recording_url (with extension),
+    saves to UPLOAD_DIR, and returns local path.
     """
-    # For now, just return a simple text message
-    return "Hello, this is your AI assistant speaking."
+    # Twilio's recording_url does NOT include file extension. Usually, add ".wav" or ".mp3"
+    if not recording_url.endswith(".wav") and not recording_url.endswith(".mp3"):
+        recording_url += ".wav"
 
-def stream_audio_to_twilio():
+    filename = recording_url.split("/")[-1]
+    save_path = os.path.join(UPLOAD_DIR, filename)
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(recording_url) as resp:
+            if resp.status != 200:
+                raise Exception(f"Failed to download audio: {resp.status}")
+            content = await resp.read()
+
+    with open(save_path, "wb") as f:
+        f.write(content)
+
+    return save_path
+
+def stream_audio_to_twilio(response_text: str) -> str:
     """
-    Creates a TwiML VoiceResponse to play the audio fetched/generated.
-    This example just reads the text as speech.
+    Returns TwiML VoiceResponse string to say the response_text.
     """
     response = VoiceResponse()
-    audio_text = fetch_audio()
-    response.say(audio_text, voice='alice', language='en-US')
+    response.say(response_text, voice='alice', language='en-US')
     return str(response)

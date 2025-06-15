@@ -6,7 +6,8 @@ export default function AudioProcessor() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Call backend when filename changes (debounced or on blur could be nicer)
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+
   const handleFetch = async () => {
     if (!filename) return;
     setLoading(true);
@@ -14,7 +15,9 @@ export default function AudioProcessor() {
     setResult(null);
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/process-audio/?filename=${encodeURIComponent(filename)}`);
+      const response = await fetch(
+        `${backendUrl}/process-audio/?filename=${encodeURIComponent(filename)}`
+      );
       if (!response.ok) {
         throw new Error(`Error: ${response.statusText}`);
       }
@@ -32,7 +35,7 @@ export default function AudioProcessor() {
       <h2>Process Audio File</h2>
       <input
         type="text"
-        placeholder="Enter audio filename (e.g. test.wav)"
+        placeholder="Enter audio filename (e.g. Audio1.mp3)"
         value={filename}
         onChange={(e) => setFilename(e.target.value)}
         onKeyDown={(e) => {
@@ -42,7 +45,11 @@ export default function AudioProcessor() {
         }}
         style={{ width: "100%", padding: 8, fontSize: 16 }}
       />
-      <button onClick={handleFetch} style={{ marginTop: 10, padding: "8px 16px" }}>
+      <button
+        onClick={handleFetch}
+        style={{ marginTop: 10, padding: "8px 16px" }}
+        disabled={loading}
+      >
         Process
       </button>
 

@@ -4,7 +4,8 @@ export default function HelloBackend() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_BACKEND_URL}/api/hello`)
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    fetch(`${backendUrl}/api/hello`)
       .then(res => res.json())
       .then(data => setMessage(data.message))
       .catch(err => console.error(err));

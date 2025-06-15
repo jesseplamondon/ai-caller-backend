@@ -2,14 +2,28 @@ import asyncio
 import os
 from openai import OpenAI
 
-# Create the OpenAI client using the environment variable
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 async def transcribe_audio(audio_path: str) -> str:
-    print(">> Starting fake transcription...")
-    return "Hi, I’m a test transcript! (OpenAI quota exceeded)"
+    print(f">> Transcribing audio from {audio_path} ...")
 
+    loop = asyncio.get_event_loop()
 
+    def sync_transcribe():
+        try:
+            with open(audio_path, "rb") as audio_file:
+                transcription = client.audio.transcriptions.create(
+                    file=audio_file,
+                    model="whisper-1"
+                )
+            return transcription.text
+        except Exception as e:
+            print(f"[Transcription Error] {e}")
+            return ""
+
+    transcript = await loop.run_in_executor(None, sync_transcribe)
+    print(">> Transcript:", transcript[:60])
+    return transcript
 
 async def generate_response(prompt: str) -> str:
     print(">> Generating GPT response...")
